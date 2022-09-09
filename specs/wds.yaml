@@ -1,0 +1,2660 @@
+openapi: 3.0.2
+info:
+  title: WDS API
+  description: Wonderland Data Services API
+  version: 1.0.0
+paths:
+  /:
+    get:
+      tags:
+        - root
+      summary: API Root
+      description: API links
+      operationId: root__get
+      responses:
+        '200':
+          description: WDSSoftware requested by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WDSSoftware'
+              example:
+                product_url: /products{/systemId}
+                product_assets_url: /products/{systemId}/assets
+                firmware_url: /firmware{/biosFamily}
+                software_url: /software{/softwareId}
+                bulletin_url: /bulletins{/bulletinId}
+                products_search_url: /products?q={query}{&page,limit,sort,order}
+                software_search_url: /software?q={query}{&page,size,desc,sort,order,category,release_type,os}
+                bulletin_search_url: /bulletins?q={query}{&page,per_page,sort,order}
+  /software:
+    get:
+      tags:
+        - software
+      summary: Get Software
+      description: Get software
+      operationId: get_software_software_get
+      parameters:
+        - required: false
+          schema:
+            title: Sort
+            type: string
+            default: ''
+          name: sort
+          in: query
+        - required: false
+          schema:
+            title: Desc
+            type: boolean
+            default: true
+          name: desc
+          in: query
+        - description: Query string for the items to search in the database that have a good match
+          required: false
+          schema:
+            title: Search Query
+            maxLength: 50
+            minLength: 3
+            type: string
+            description: Query string for the items to search in the database that have a good match
+          name: q
+          in: query
+        - required: false
+          schema:
+            title: WDSSoftware Category
+            allOf:
+              - $ref: '#/components/schemas/WDSSoftwareCategory'
+          name: category
+          in: query
+        - description: Indicates the type of release (e.g. critical, routine, recommended)
+          required: false
+          schema:
+            title: Release Type
+            allOf:
+              - $ref: '#/components/schemas/ReleaseType'
+            description: Indicates the type of release (e.g. critical, routine, recommended)
+          name: release_type
+          in: query
+        - description: the operating system version
+          required: false
+          schema:
+            title: Operating system version
+            allOf:
+              - $ref: '#/components/schemas/OperatingSystemTypes'
+            description: the operating system version
+          name: os
+          in: query
+        - required: false
+          schema:
+            title: Page
+            minimum: 1
+            type: integer
+            default: 1
+          name: page
+          in: query
+        - required: false
+          schema:
+            title: Size
+            maximum: 100
+            minimum: 1
+            type: integer
+            default: 50
+          name: size
+          in: query
+      responses:
+        '200':
+          description: WDSSoftware requested by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WDSSoftware'
+              example:
+                - spNumber: SP100921
+                  version: 1919.14.0.1269
+                  vendorVersion: 1919.14.0.1269
+                  vendorName: Intel
+                  type: Driver
+                  category: Driver - Chipset
+                  releaseType: Routine
+                  supersede: SP95852
+                  softPaqMD5: 58ac26d6fac07f630e16b76772c92a7b
+                  softPaqSha256: 26BA37073CD06698F5AD3AFF9CBF23F3FD046A41AE41E92FD4633AC52B1F798A
+                  softPaqBinarySize: '14706952'
+                  windowsUpdateId: ''
+                  rebootRequired: true
+                  isUwpApp: false
+                  isDpbCompliant: false
+                  driverType: NA
+                  detailFileInfo:
+                    - TEEDriverW8x64.sys=<WINSYSDIR>\DriverStore\FileRepository\heci.inf_amd64_84dfa9390100e6bc\x64\,0x077F,0x000E,0x0000,0x04F5,WT64_1909
+                  returnCodes:
+                    - 0:SUCCESS:NOREBOOT= The action completed successfully
+                    - 14:SUCCESS:REBOOT= A restart is required to complete the install
+                    - 3010:SUCCESS:NOREBOOT= The action completed successfully
+                  infPaths:
+                    - ''
+                  silentInstall: '"install.exe"'
+                  devices:
+                    - PCI\VEN_8086&DEV_9D3A&SUBSYS_8627103C="Intel(R) Management Engine Interface"
+                    - PCI\VEN_8086&DEV_9D3A&SUBSYS_8628103C="Intel(R) Management Engine Interface"
+                    - PCI\VEN_8086&DEV_9DE0&SUBSYS_8629103C="Intel(R) Management Engine Interface"
+                    - PCI\VEN_8086&DEV_9DE0&SUBSYS_862A103C="Intel(R) Management Engine Interface"
+                  isManageable: true
+                  displayStrings:
+                    - cvaLanguageCode: US
+                      title: Intel Management Engine Interface (MEI) Driver (Windows 10 v1909)
+                      description: This package provides the Intel Management Engine Interface (MEI) Driver for the supported notebook models and operating systems. The Intel Management Engine Interface enables communication between the host operating system and the Intel Management Engine firmware.
+                      enhancements:
+                        - '- Provides the updated driver.'
+                  products:
+                    - systemId: 8627,8628,8629,862A
+                      productName: HP 340 G5 Notebook PC
+                    - systemId: 8627,8628,8629,862A
+                      productName: HP 348 G5 Notebook PC
+                  oses:
+                    - name: Microsoft Windows 10 version 1909 (64-bit)
+                      version: 1032
+                      osId: 4283
+                      cvaOsCode: WT64_1909
+                  storePackageInfo:
+                    - ''
+                  supersededSpNumbers: []
+                  supersedingSpNumbers:
+                    - SP95852
+                  installInstructions: "1. Download the file by clicking the Download or Obtain Software button and saving the file to a folder on your hard drive (make a note of the folder where the downloaded file is saved).\r\n\r\n2. Double-click the downloaded file and follow the on-screen instructions."
+        '422':
+          description: Validation Error
+  /software/{id}:
+    get:
+      tags:
+        - software
+      summary: Get Software By System Id
+      description: |-
+        Retrieve a software by ID:
+
+        - **id**: *(number)* This is the software ID without the prefix.
+      operationId: get_software_by_system_id_software__id__get
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: integer
+          name: id
+          in: path
+        - required: false
+          schema:
+            title: WDSSoftware Category
+            allOf:
+              - $ref: '#/components/schemas/WDSSoftwareCategory'
+          name: category
+          in: query
+        - description: Indicates the type of release (e.g. critical, routine, recommended)
+          required: false
+          schema:
+            title: Release Type
+            allOf:
+              - $ref: '#/components/schemas/ReleaseType'
+            description: Indicates the type of release (e.g. critical, routine, recommended)
+          name: release_type
+          in: query
+        - description: the operating system version
+          required: false
+          schema:
+            title: Operating system version
+            allOf:
+              - $ref: '#/components/schemas/OperatingSystemTypes'
+            description: the operating system version
+          name: os
+          in: query
+      responses:
+        '200':
+          description: WDSSoftware requested by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WDSSoftware'
+              example:
+                spNumber: SP100921
+                version: 1919.14.0.1269
+                vendorVersion: 1919.14.0.1269
+                vendorName: Intel
+                type: Driver
+                category: Driver - Chipset
+                releaseType: Routine
+                supersede: SP95852
+                softPaqMD5: 58ac26d6fac07f630e16b76772c92a7b
+                softPaqSha256: 26BA37073CD06698F5AD3AFF9CBF23F3FD046A41AE41E92FD4633AC52B1F798A
+                softPaqBinarySize: '14706952'
+                windowsUpdateId: ''
+                rebootRequired: true
+                isUwpApp: false
+                isDpbCompliant: false
+                driverType: NA
+                detailFileInfo:
+                  - TEEDriverW8x64.sys=<WINSYSDIR>\DriverStore\FileRepository\heci.inf_amd64_84dfa9390100e6bc\x64\,0x077F,0x000E,0x0000,0x04F5,WT64_1909
+                returnCodes:
+                  - 0:SUCCESS:NOREBOOT= The action completed successfully
+                  - 14:SUCCESS:REBOOT= A restart is required to complete the install
+                  - 3010:SUCCESS:NOREBOOT= The action completed successfully
+                infPaths:
+                  - ''
+                silentInstall: '"install.exe"'
+                devices:
+                  - PCI\VEN_8086&DEV_9D3A&SUBSYS_8627103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9D3A&SUBSYS_8628103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9DE0&SUBSYS_8629103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9DE0&SUBSYS_862A103C="Intel(R) Management Engine Interface"
+                isManageable: true
+                displayStrings:
+                  - cvaLanguageCode: US
+                    title: Intel Management Engine Interface (MEI) Driver (Windows 10 v1909)
+                    description: This package provides the Intel Management Engine Interface (MEI) Driver for the supported notebook models and operating systems. The Intel Management Engine Interface enables communication between the host operating system and the Intel Management Engine firmware.
+                    enhancements:
+                      - '- Provides the updated driver.'
+                products:
+                  - systemId: 8627,8628,8629,862A
+                    productName: HP 340 G5 Notebook PC
+                  - systemId: 8627,8628,8629,862A
+                    productName: HP 348 G5 Notebook PC
+                oses:
+                  - name: Microsoft Windows 10 version 1909 (64-bit)
+                    version: 1032
+                    osId: 4283
+                    cvaOsCode: WT64_1909
+                storePackageInfo:
+                  - ''
+                supersededSpNumbers: []
+                supersedingSpNumbers:
+                  - SP95852
+                installInstructions: "1. Download the file by clicking the Download or Obtain Software button and saving the file to a folder on your hard drive (make a note of the folder where the downloaded file is saved).\r\n\r\n2. Double-click the downloaded file and follow the on-screen instructions."
+        '422':
+          description: Validation Error
+  /software/{id}/latest:
+    get:
+      tags:
+        - software
+      summary: Get Latest Software By Id
+      description: |-
+        Given a software ID, return the latest version of the software.
+
+        - **id**: *(number)* This is the software ID.
+      operationId: get_latest_software_by_id_software__id__latest_get
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: integer
+          name: id
+          in: path
+        - required: false
+          schema:
+            title: WDSSoftware Category
+            allOf:
+              - $ref: '#/components/schemas/WDSSoftwareCategory'
+          name: category
+          in: query
+        - description: Indicates the type of release (e.g. critical, routine, recommended)
+          required: false
+          schema:
+            title: Release Type
+            allOf:
+              - $ref: '#/components/schemas/ReleaseType'
+            description: Indicates the type of release (e.g. critical, routine, recommended)
+          name: release_type
+          in: query
+        - description: the operating system version
+          required: false
+          schema:
+            title: Operating system version
+            allOf:
+              - $ref: '#/components/schemas/OperatingSystemTypes'
+            description: the operating system version
+          name: os
+          in: query
+      responses:
+        '200':
+          description: Get the latest software for a given ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WDSSoftware'
+              example:
+                spNumber: SP100921
+                version: 1919.14.0.1269
+                vendorVersion: 1919.14.0.1269
+                vendorName: Intel
+                type: Driver
+                category: Driver - Chipset
+                releaseType: Routine
+                supersede: SP95852
+                softPaqMD5: 58ac26d6fac07f630e16b76772c92a7b
+                softPaqSha256: 26BA37073CD06698F5AD3AFF9CBF23F3FD046A41AE41E92FD4633AC52B1F798A
+                softPaqBinarySize: '14706952'
+                windowsUpdateId: ''
+                rebootRequired: true
+                isUwpApp: false
+                isDpbCompliant: false
+                driverType: NA
+                detailFileInfo:
+                  - TEEDriverW8x64.sys=<WINSYSDIR>\DriverStore\FileRepository\heci.inf_amd64_84dfa9390100e6bc\x64\,0x077F,0x000E,0x0000,0x04F5,WT64_1909
+                returnCodes:
+                  - 0:SUCCESS:NOREBOOT= The action completed successfully
+                  - 14:SUCCESS:REBOOT= A restart is required to complete the install
+                  - 3010:SUCCESS:NOREBOOT= The action completed successfully
+                infPaths:
+                  - ''
+                silentInstall: '"install.exe"'
+                devices:
+                  - PCI\VEN_8086&DEV_9D3A&SUBSYS_8627103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9D3A&SUBSYS_8628103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9DE0&SUBSYS_8629103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9DE0&SUBSYS_862A103C="Intel(R) Management Engine Interface"
+                isManageable: true
+                displayStrings:
+                  - cvaLanguageCode: US
+                    title: Intel Management Engine Interface (MEI) Driver (Windows 10 v1909)
+                    description: This package provides the Intel Management Engine Interface (MEI) Driver for the supported notebook models and operating systems. The Intel Management Engine Interface enables communication between the host operating system and the Intel Management Engine firmware.
+                    enhancements:
+                      - '- Provides the updated driver.'
+                products:
+                  - systemId: 8627,8628,8629,862A
+                    productName: HP 340 G5 Notebook PC
+                  - systemId: 8627,8628,8629,862A
+                    productName: HP 348 G5 Notebook PC
+                oses:
+                  - name: Microsoft Windows 10 version 1909 (64-bit)
+                    version: 1032
+                    osId: 4283
+                    cvaOsCode: WT64_1909
+                storePackageInfo:
+                  - ''
+                supersededSpNumbers: []
+                supersedingSpNumbers:
+                  - SP95852
+                installInstructions: "1. Download the file by clicking the Download or Obtain Software button and saving the file to a folder on your hard drive (make a note of the folder where the downloaded file is saved).\r\n\r\n2. Double-click the downloaded file and follow the on-screen instructions."
+        '422':
+          description: Validation Error
+  /firmware:
+    get:
+      tags:
+        - firmware
+      summary: Get Firmware
+      description: Get firmware
+      operationId: get_firmware_firmware_get
+      parameters:
+        - required: false
+          schema:
+            title: Sort
+            type: string
+            default: ''
+          name: sort
+          in: query
+        - required: false
+          schema:
+            title: Desc
+            type: boolean
+            default: true
+          name: desc
+          in: query
+        - description: Query string for the items to search in the database that have a good match
+          required: false
+          schema:
+            title: Search Query
+            maxLength: 50
+            minLength: 3
+            type: string
+            description: Query string for the items to search in the database that have a good match
+          name: q
+          in: query
+        - required: false
+          schema:
+            title: WDSSoftware Category
+            allOf:
+              - $ref: '#/components/schemas/WDSSoftwareCategory'
+          name: category
+          in: query
+        - description: Indicates the type of release (e.g. critical, routine, recommended)
+          required: false
+          schema:
+            title: Release Type
+            allOf:
+              - $ref: '#/components/schemas/ReleaseType'
+            description: Indicates the type of release (e.g. critical, routine, recommended)
+          name: release_type
+          in: query
+        - description: the operating system version
+          required: false
+          schema:
+            title: Operating system version
+            allOf:
+              - $ref: '#/components/schemas/OperatingSystemTypes'
+            description: the operating system version
+          name: os
+          in: query
+        - required: false
+          schema:
+            title: Page
+            minimum: 1
+            type: integer
+            default: 1
+          name: page
+          in: query
+        - required: false
+          schema:
+            title: Size
+            maximum: 100
+            minimum: 1
+            type: integer
+            default: 50
+          name: size
+          in: query
+      responses:
+        '200':
+          description: WDSFirmware requested by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WDSSoftware'
+              example:
+                - spNumber: SP100921
+                  version: 1919.14.0.1269
+                  vendorVersion: 1919.14.0.1269
+                  vendorName: Intel
+                  type: Driver
+                  category: Driver - Chipset
+                  releaseType: Routine
+                  supersede: SP95852
+                  softPaqMD5: 58ac26d6fac07f630e16b76772c92a7b
+                  softPaqSha256: 26BA37073CD06698F5AD3AFF9CBF23F3FD046A41AE41E92FD4633AC52B1F798A
+                  softPaqBinarySize: '14706952'
+                  windowsUpdateId: ''
+                  rebootRequired: true
+                  isUwpApp: false
+                  isDpbCompliant: false
+                  driverType: NA
+                  detailFileInfo:
+                    - TEEDriverW8x64.sys=<WINSYSDIR>\DriverStore\FileRepository\heci.inf_amd64_84dfa9390100e6bc\x64\,0x077F,0x000E,0x0000,0x04F5,WT64_1909
+                  returnCodes:
+                    - 0:SUCCESS:NOREBOOT= The action completed successfully
+                    - 14:SUCCESS:REBOOT= A restart is required to complete the install
+                    - 3010:SUCCESS:NOREBOOT= The action completed successfully
+                  infPaths:
+                    - ''
+                  silentInstall: '"install.exe"'
+                  devices:
+                    - PCI\VEN_8086&DEV_9D3A&SUBSYS_8627103C="Intel(R) Management Engine Interface"
+                    - PCI\VEN_8086&DEV_9D3A&SUBSYS_8628103C="Intel(R) Management Engine Interface"
+                    - PCI\VEN_8086&DEV_9DE0&SUBSYS_8629103C="Intel(R) Management Engine Interface"
+                    - PCI\VEN_8086&DEV_9DE0&SUBSYS_862A103C="Intel(R) Management Engine Interface"
+                  isManageable: true
+                  displayStrings:
+                    - cvaLanguageCode: US
+                      title: Intel Management Engine Interface (MEI) Driver (Windows 10 v1909)
+                      description: This package provides the Intel Management Engine Interface (MEI) Driver for the supported notebook models and operating systems. The Intel Management Engine Interface enables communication between the host operating system and the Intel Management Engine firmware.
+                      enhancements:
+                        - '- Provides the updated driver.'
+                  products:
+                    - systemId: 8627,8628,8629,862A
+                      productName: HP 340 G5 Notebook PC
+                    - systemId: 8627,8628,8629,862A
+                      productName: HP 348 G5 Notebook PC
+                  oses:
+                    - name: Microsoft Windows 10 version 1909 (64-bit)
+                      version: 1032
+                      osId: 4283
+                      cvaOsCode: WT64_1909
+                  storePackageInfo:
+                    - ''
+                  supersededSpNumbers: []
+                  supersedingSpNumbers:
+                    - SP95852
+                  installInstructions: "1. Download the file by clicking the Download or Obtain Software button and saving the file to a folder on your hard drive (make a note of the folder where the downloaded file is saved).\r\n\r\n2. Double-click the downloaded file and follow the on-screen instructions."
+        '422':
+          description: Validation Error
+  /firmware/{id}:
+    get:
+      tags:
+        - firmware
+      summary: Get Firmware By Bios Family
+      description: |-
+        Retrieve a software by ID:
+
+        - **id**: *(number)* This is the software ID without the prefix.
+      operationId: get_firmware_by_bios_family_firmware__id__get
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: integer
+          name: id
+          in: path
+        - required: false
+          schema:
+            title: WDSSoftware Category
+            allOf:
+              - $ref: '#/components/schemas/WDSSoftwareCategory'
+          name: category
+          in: query
+        - description: Indicates the type of release (e.g. critical, routine, recommended)
+          required: false
+          schema:
+            title: Release Type
+            allOf:
+              - $ref: '#/components/schemas/ReleaseType'
+            description: Indicates the type of release (e.g. critical, routine, recommended)
+          name: release_type
+          in: query
+        - description: the operating system version
+          required: false
+          schema:
+            title: Operating system version
+            allOf:
+              - $ref: '#/components/schemas/OperatingSystemTypes'
+            description: the operating system version
+          name: os
+          in: query
+      responses:
+        '200':
+          description: Gets the latest firmware for a given BIOS family
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WDSSoftware'
+              example:
+                spNumber: SP100921
+                version: 1919.14.0.1269
+                vendorVersion: 1919.14.0.1269
+                vendorName: Intel
+                type: Driver
+                category: Driver - Chipset
+                releaseType: Routine
+                supersede: SP95852
+                softPaqMD5: 58ac26d6fac07f630e16b76772c92a7b
+                softPaqSha256: 26BA37073CD06698F5AD3AFF9CBF23F3FD046A41AE41E92FD4633AC52B1F798A
+                softPaqBinarySize: '14706952'
+                windowsUpdateId: ''
+                rebootRequired: true
+                isUwpApp: false
+                isDpbCompliant: false
+                driverType: NA
+                detailFileInfo:
+                  - TEEDriverW8x64.sys=<WINSYSDIR>\DriverStore\FileRepository\heci.inf_amd64_84dfa9390100e6bc\x64\,0x077F,0x000E,0x0000,0x04F5,WT64_1909
+                returnCodes:
+                  - 0:SUCCESS:NOREBOOT= The action completed successfully
+                  - 14:SUCCESS:REBOOT= A restart is required to complete the install
+                  - 3010:SUCCESS:NOREBOOT= The action completed successfully
+                infPaths:
+                  - ''
+                silentInstall: '"install.exe"'
+                devices:
+                  - PCI\VEN_8086&DEV_9D3A&SUBSYS_8627103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9D3A&SUBSYS_8628103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9DE0&SUBSYS_8629103C="Intel(R) Management Engine Interface"
+                  - PCI\VEN_8086&DEV_9DE0&SUBSYS_862A103C="Intel(R) Management Engine Interface"
+                isManageable: true
+                displayStrings:
+                  - cvaLanguageCode: US
+                    title: Intel Management Engine Interface (MEI) Driver (Windows 10 v1909)
+                    description: This package provides the Intel Management Engine Interface (MEI) Driver for the supported notebook models and operating systems. The Intel Management Engine Interface enables communication between the host operating system and the Intel Management Engine firmware.
+                    enhancements:
+                      - '- Provides the updated driver.'
+                products:
+                  - systemId: 8627,8628,8629,862A
+                    productName: HP 340 G5 Notebook PC
+                  - systemId: 8627,8628,8629,862A
+                    productName: HP 348 G5 Notebook PC
+                oses:
+                  - name: Microsoft Windows 10 version 1909 (64-bit)
+                    version: 1032
+                    osId: 4283
+                    cvaOsCode: WT64_1909
+                storePackageInfo:
+                  - ''
+                supersededSpNumbers: []
+                supersedingSpNumbers:
+                  - SP95852
+                installInstructions: "1. Download the file by clicking the Download or Obtain Software button and saving the file to a folder on your hard drive (make a note of the folder where the downloaded file is saved).\r\n\r\n2. Double-click the downloaded file and follow the on-screen instructions."
+        '422':
+          description: Validation Error
+  /products:
+    get:
+      tags:
+        - products
+      summary: Get Products
+      operationId: get_products_products_get
+      parameters:
+        - required: false
+          schema:
+            title: Sort
+            type: string
+            default: ''
+          name: sort
+          in: query
+        - required: false
+          schema:
+            title: Desc
+            type: boolean
+            default: true
+          name: desc
+          in: query
+        - description: Query string for the items to search in the database that have a good match
+          required: false
+          schema:
+            title: Search Query
+            maxLength: 50
+            minLength: 3
+            type: string
+            description: Query string for the items to search in the database that have a good match
+          name: q
+          in: query
+      responses:
+        '200':
+          description: Products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WDSSoftware'
+                title: Response Get Products Products Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+              example:
+                - productId: 2100896346
+                  systemId: 896D
+                  systemFamily: HP ZBook Firefly 16 inch G9 Mobile Workstation PC
+                  modelName: HP ZBook Firefly 16 inch G9 Mobile Workstation PC
+                  operatingSystems:
+                    - name: Microsoft Windows 10 All Editions (64-bit)
+                      osId: '4192'
+                      cvaOsCode: WT64
+                    - name: Microsoft Windows 11 version 21H2 (64-bit)
+                      osId: '4298'
+                      cvaOsCode: W11_21H2
+                  locales:
+                    - language: en
+                      country: US
+                    - language: en
+                      country: GB
+                  driverPackBuildSupported: true
+                  links:
+                    referenceImage: /products/896D/referenceImage
+                    media: /products/896D/media
+                    software: /products/896D/software
+                    bulletins: /products/896D/bulletins
+                - productId: 2100896346
+                  systemId: 8ABB
+                  systemFamily: HP ZBook Firefly 16 inch G9 Mobile Workstation PC
+                  modelName: HP ZBook Firefly 16 inch G9 Mobile Workstation PC
+                  operatingSystems:
+                    - name: Microsoft Windows 10 All Editions (64-bit)
+                      osId: '4192'
+                      cvaOsCode: WT64
+                    - name: Microsoft Windows 10 version 20H2 (64-bit)
+                      osId: '4288'
+                      cvaOsCode: WT64_2009
+                    - name: Microsoft Windows 10 version 21H1 (64-bit)
+                      osId: '4295'
+                      cvaOsCode: WT64_21H1
+                  links:
+                    referenceImage: /products/8ABB/referenceImage
+                    media: /products/8ABB/media
+                    software: /products/8ABB/software
+                    bulletins: /products/8ABB/bulletins
+                  locales:
+                    - language: en
+                      country: US
+                    - language: fr
+                      country: FR
+                  driverPackBuildSupported: true
+        '422':
+          description: Validation Error
+  /products/{sys_id}:
+    get:
+      tags:
+        - products
+      summary: Get Products By Id
+      operationId: get_products_by_id_products__sys_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Sys Id
+            type: integer
+          name: sys_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/{sys_id}/assets:
+    get:
+      tags:
+        - products
+      summary: Get Assets By Sysid
+      operationId: get_assets_by_sysid_products__sys_id__assets_get
+      parameters:
+        - required: true
+          schema:
+            title: Sys Id
+            type: integer
+          name: sys_id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /bulletins:
+    get:
+      tags:
+        - bulletins
+      summary: Get Bulletins
+      operationId: get_bulletins_bulletins_get
+      parameters:
+        - required: false
+          schema:
+            title: Sort
+            type: string
+            default: ''
+          name: sort
+          in: query
+        - required: false
+          schema:
+            title: Desc
+            type: boolean
+            default: true
+          name: desc
+          in: query
+        - description: Query string for the items to search in the database that have a good match
+          required: false
+          schema:
+            title: Search Query
+            maxLength: 50
+            minLength: 3
+            type: string
+            description: Query string for the items to search in the database that have a good match
+          name: q
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /bulletins/{id}:
+    get:
+      tags:
+        - bulletins
+      summary: Get Bulletins By Id
+      operationId: get_bulletins_by_id_bulletins__id__get
+      parameters:
+        - required: true
+          schema:
+            title: Id
+            type: integer
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /references:
+    get:
+      tags:
+        - reference images
+      summary: Get References
+      description: Get reference images
+      operationId: get_references_references_get
+      parameters:
+        - required: false
+          schema:
+            title: Sort
+            type: string
+            default: ''
+          name: sort
+          in: query
+        - required: false
+          schema:
+            title: Desc
+            type: boolean
+            default: true
+          name: desc
+          in: query
+        - description: Query string for the items to search in the database that have a good match
+          required: false
+          schema:
+            title: Search Query
+            maxLength: 50
+            minLength: 3
+            type: string
+            description: Query string for the items to search in the database that have a good match
+          name: q
+          in: query
+      responses:
+        '200':
+          description: Reference Images
+          content:
+            application/json:
+              schema:
+                title: Response 200 Get References References Get
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReferenceImage'
+              example:
+                - Id: 251
+                  Name: HP MP9 G4 Retail System
+                  Version: '3'
+                  DateCreated: '20210903'
+                  DateLastModified: '20220824'
+                  ProductName: HP MP9 G4 Retail System
+                  SystemID: 8A39
+                  SystemFamily: 103C_5330US HP ProDesk
+                  BiosVersion2: Q35 Ver. 02.16.01
+                  BiosVersion: '14.01'
+                  BiosDate: 07/28/2022
+                  UserUILanguage: '1033'
+                  Os:
+                    Description: Microsoft Windows 10 Pro
+                    Version: 10.0.19041
+                    BuildNumber: '19041'
+                    Architecture: 64-bit
+                    EditionId: Enterprise
+                    ReleaseId: '2004'
+                  Softpaqs:
+                    - Name: HP TPM Firmware (IFX)
+                      SpId: 94937
+                      Version: 7.85.4555.0
+                      Category: Software
+                      Devices: []
+                    - Name: HP ESU for Microsoft Windows 10
+                      SpId: 92144
+                      Version: 11.4.2.2
+                      Category: Software
+                      Devices: []
+                    - Name: Cisco PEAP Module
+                      SpId: 87565
+                      Version: 1.1.6
+                      Category: Software
+                      Devices: []
+                      Categories:
+                        - net
+                    - Name: Intel(R) Processor Graphics
+                      SpId: 140691
+                      Version: 30.0.101.1339
+                      Category: Software
+                      Devices: []
+                      Categories:
+                        - media
+                        - extension
+                        - display
+                    - Name: HP Retail Peripheral Agent
+                      SpId: 140453
+                      Version: 1.3.4.3
+                      Category: Software
+                      Devices: []
+                    - Name: HP MIKClient
+                      SpId: 140378
+                      Version: 5.0.1.41893
+                      Category: Software
+                      Devices: []
+                    - Name: HP Sure Recover Agent Package
+                      SpId: 140106
+                      Version: 2.9.6.40366
+                      Category: Software
+                      Devices: []
+                    - Name: HP Secure Boot Update Utility
+                      SpId: 139773
+                      Version: 1.0.5.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP Cloud Recovery
+                      SpId: 139291
+                      Version: 2.9.5.37980
+                      Category: Software
+                      Devices: []
+                    - Name: HP Retail Assistance Utility
+                      SpId: 138293
+                      Version: 1.0.0.3
+                      Category: Software
+                      Devices: []
+                    - Name: HP Image Assistant
+                      SpId: 136558
+                      Version: 5.1.4.31279
+                      Category: Software
+                      Devices: []
+                    - Name: Realtek Bluetooth Remote Wake Feature
+                      SpId: 119367
+                      Version: 1.0.0.4
+                      Category: Software
+                      Devices: []
+                    - Name: HP PC Hardware Diagnostics UEFI
+                      SpId: 115284
+                      Version: 8.2.0.0
+                      Category: Software
+                      Devices: []
+                    - Name: HP Notifications
+                      SpId: 113380
+                      Version: 1.1.28.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP Connection Optimizer
+                      SpId: 111995
+                      Version: 2.0.19.0
+                      Category: Software
+                      Devices: []
+                    - Name: Intel Bluetooth Remote Wake Feature Application
+                      SpId: 110501
+                      Version: 21.120.0.4
+                      Category: Software
+                      Devices: []
+                    - Name: HP Collaboration Keyboard
+                      SpId: 110344
+                      Version: 1.0.37.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP Hotkey Support
+                      SpId: 107620
+                      Version: 6.2.55.1
+                      Category: Software
+                      Devices: []
+                    - SpId: 95222
+                      Categories:
+                        - system
+                    - SpId: 134311
+                      Categories:
+                        - system
+                        - softwarecomponent
+                    - SpId: 132929
+                      Categories:
+                        - system
+                        - extension
+                        - display
+                        - usbfunctioncontroller
+                        - sdhost
+                        - scsiadapter
+                        - ports
+                    - SpId: 139823
+                      Categories:
+                        - system
+                    - SpId: 122453
+                      Categories:
+                        - extension
+                        - media
+                        - softwarecomponent
+                    - SpId: 133034
+                      Categories:
+                        - net
+                    - SpId: 135954
+                      Categories:
+                        - scsiadapter
+                        - hdc
+                    - SpId: 139844
+                      Categories:
+                        - system
+                        - ports
+                    - SpId: 111695
+                      Categories:
+                        - net
+                    - SpId: 138639
+                      Categories:
+                        - net
+                    - SpId: 111991
+                      Categories:
+                        - net
+                    - SpId: 107322
+                      Categories:
+                        - ports
+                    - SpId: 110216
+                      Categories:
+                        - biometric
+                    - SpId: 136892
+                      Categories:
+                        - bluetooth
+                    - SpId: 136485
+                      Categories:
+                        - bluetooth
+                  Recommended:
+                    - 110344
+                    - 110216
+                    - 87565
+                    - 138639
+                    - 135954
+                    - 140691
+                    - 139291
+                    - 140453
+                    - 110501
+                    - 134311
+                    - 136485
+                    - 133034
+                    - 139823
+                    - 138293
+                    - 107322
+                    - 136892
+                    - 132929
+                    - 139844
+                    - 119367
+                    - 140106
+                    - 111695
+                    - 115284
+                    - 122453
+                    - 94937
+                    - 140378
+                    - 113380
+                    - 107620
+                    - 136558
+                    - 92144
+                    - 95222
+                    - 111991
+                    - 111995
+                    - 139773
+                - Id: 85
+                  Name: HP ProBook 440 G8 Notebook PC
+                  Version: '3'
+                  DateCreated: '20211216'
+                  DateLastModified: '20220823'
+                  ProductName: HP ProBook 440 G8 Notebook PC
+                  SystemID: 8A86
+                  BiosVersion2: T70 Ver. 01.10.00
+                  BiosVersion: 0A.00
+                  BiosDate: |-
+                    07/14/2022
+                    T85_01100000.bin=ROM
+                  UserUILanguage: '1033'
+                  Os:
+                    Description: Microsoft Windows 10 Pro
+                    Version: 10.0.19041
+                    BuildNumber: '19041'
+                    Architecture: 64-bit
+                    EditionId: Professional
+                    ReleaseId: '2004'
+                  Softpaqs:
+                    - Name: Realtek USB Audio
+                      SpId: 136362
+                      Version: 6.3.9600.250
+                      Category: Software
+                      Devices: []
+                      Categories:
+                        - media
+                    - Name: HP MAC Address Manager
+                      SpId: 95997
+                      Version: 1.1.19.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP Cloud Recovery
+                      SpId: 139291
+                      Version: 2.9.5.37980
+                      Category: Software
+                      Devices: []
+                    - Name: HP MIK Client
+                      SpId: 139176
+                      Version: 5.0.0.38007
+                      Category: Software
+                      Devices: []
+                    - Name: HP Wireless Button Driver
+                      SpId: 136614
+                      Version: 2.1.16.30156
+                      Category: Software
+                      Devices: []
+                      Categories:
+                        - hidclass
+                        - softwarecomponent
+                    - Name: HP PC Hardware Diagnostics UEFI
+                      SpId: 136348
+                      Version: 8.4.1.0
+                      Category: Software
+                      Devices: []
+                    - Name: HP Notifications
+                      SpId: 136126
+                      Version: 1.1.28.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP System Default Settings
+                      SpId: 135920
+                      Version: 1.4.16.5
+                      Category: Software
+                      Devices: []
+                    - Name: HP Smart Health
+                      SpId: 135860
+                      Version: 2.3.7.0
+                      Category: Software
+                      Devices: []
+                    - Name: HP Connection Optimizer
+                      SpId: 134527
+                      Version: 2.0.19.0
+                      Category: Software
+                      Devices: []
+                    - SpId: 139398
+                      Categories:
+                        - system
+                        - media
+                        - extension
+                        - display
+                        - cta driver devices
+                        - softwarecomponent
+                    - SpId: 141624
+                      Categories:
+                        - system
+                        - media
+                        - extension
+                        - softwarecomponent
+                    - SpId: 139275
+                      Categories:
+                        - system
+                        - keyboard
+                        - softwarecomponent
+                    - SpId: 136791
+                      Categories:
+                        - system
+                    - SpId: 136086
+                      Categories:
+                        - system
+                        - extension
+                        - display
+                        - usbfunctioncontroller
+                        - sdhost
+                        - scsiadapter
+                        - ports
+                    - SpId: 136077
+                      Categories:
+                        - hidclass
+                    - SpId: 135754
+                      Categories:
+                        - dptf
+                        - system
+                    - SpId: 135756
+                      Categories:
+                        - system
+                    - SpId: 140242
+                      Categories:
+                        - softwaredevice
+                        - media
+                        - mouse
+                        - display
+                        - usb
+                        - nvmoduletracker
+                        - system
+                    - SpId: 135945
+                      Categories:
+                        - extension
+                        - system
+                        - ports
+                        - sensor
+                    - SpId: 135902
+                      Categories:
+                        - extension
+                        - mtd
+                    - SpId: 136756
+                      Categories:
+                        - net
+                        - realmanage
+                        - extension
+                    - SpId: 135885
+                      Categories:
+                        - net
+                    - SpId: 139982
+                      Categories:
+                        - system
+                        - extension
+                        - ports
+                        - softwarecomponent
+                    - SpId: 110789
+                      Categories:
+                        - net
+                    - SpId: 141407
+                      Categories:
+                        - net
+                    - SpId: 136079
+                      Categories:
+                        - scsiadapter
+                        - softwarecomponent
+                    - SpId: 135673
+                      Categories:
+                        - net
+                    - SpId: 138474
+                      Categories:
+                        - net
+                        - extension
+                    - SpId: 139699
+                      Categories:
+                        - null
+                    - SpId: 140458
+                      Categories:
+                        - null
+                    - SpId: 96688
+                      Categories:
+                        - media
+                    - SpId: 136180
+                      Categories:
+                        - null
+                    - SpId: 139700
+                      Categories:
+                        - null
+                    - SpId: 135651
+                      Categories:
+                        - camera
+                        - usb
+                    - SpId: 138373
+                      Categories:
+                        - net
+                    - SpId: 136645
+                      Categories:
+                        - biometric
+                    - SpId: 136563
+                      Categories:
+                        - bluetooth
+                    - SpId: 136098
+                      Categories:
+                        - display
+                        - media
+                        - net
+                        - usb
+                    - SpId: 141213
+                      Categories:
+                        - bluetooth
+                  Recommended:
+                    - 138373
+                    - 139398
+                    - 135945
+                    - 139275
+                    - 136077
+                    - 136079
+                    - 136086
+                    - 139291
+                    - 136348
+                    - 141213
+                    - 136098
+                    - 136614
+                    - 139176
+                    - 136362
+                    - 140458
+                    - 96688
+                    - 139699
+                    - 135860
+                    - 136756
+                    - 139700
+                    - 141624
+                    - 136126
+                    - 110789
+                    - 136645
+                    - 135754
+                    - 135756
+                    - 135885
+                    - 139982
+                    - 140242
+                    - 136791
+                    - 135902
+                    - 141407
+                    - 135651
+                    - 138474
+                    - 135920
+                    - 136563
+                    - 136180
+                    - 135673
+                    - 95997
+                    - 134527
+        '422':
+          description: Validation Error
+    post:
+      tags:
+        - reference images
+      summary: Analyze Image
+      operationId: analyze_image_references_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReferenceImage'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+              example:
+                - Id: 251
+                  Name: HP MP9 G4 Retail System
+                  Version: '3'
+                  DateCreated: '20210903'
+                  DateLastModified: '20220824'
+                  ProductName: HP MP9 G4 Retail System
+                  SystemID: 8A39
+                  SystemFamily: 103C_5330US HP ProDesk
+                  BiosVersion2: Q35 Ver. 02.16.01
+                  BiosVersion: '14.01'
+                  BiosDate: 07/28/2022
+                  UserUILanguage: '1033'
+                  Os:
+                    Description: Microsoft Windows 10 Pro
+                    Version: 10.0.19041
+                    BuildNumber: '19041'
+                    Architecture: 64-bit
+                    EditionId: Enterprise
+                    ReleaseId: '2004'
+                  Softpaqs:
+                    - Name: HP TPM Firmware (IFX)
+                      SpId: 94937
+                      Version: 7.85.4555.0
+                      Category: Software
+                      Devices: []
+                    - Name: HP ESU for Microsoft Windows 10
+                      SpId: 92144
+                      Version: 11.4.2.2
+                      Category: Software
+                      Devices: []
+                    - Name: Cisco PEAP Module
+                      SpId: 87565
+                      Version: 1.1.6
+                      Category: Software
+                      Devices: []
+                      Categories:
+                        - net
+                    - Name: Intel(R) Processor Graphics
+                      SpId: 140691
+                      Version: 30.0.101.1339
+                      Category: Software
+                      Devices: []
+                      Categories:
+                        - media
+                        - extension
+                        - display
+                    - Name: HP Retail Peripheral Agent
+                      SpId: 140453
+                      Version: 1.3.4.3
+                      Category: Software
+                      Devices: []
+                    - Name: HP MIKClient
+                      SpId: 140378
+                      Version: 5.0.1.41893
+                      Category: Software
+                      Devices: []
+                    - Name: HP Sure Recover Agent Package
+                      SpId: 140106
+                      Version: 2.9.6.40366
+                      Category: Software
+                      Devices: []
+                    - Name: HP Secure Boot Update Utility
+                      SpId: 139773
+                      Version: 1.0.5.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP Cloud Recovery
+                      SpId: 139291
+                      Version: 2.9.5.37980
+                      Category: Software
+                      Devices: []
+                    - Name: HP Retail Assistance Utility
+                      SpId: 138293
+                      Version: 1.0.0.3
+                      Category: Software
+                      Devices: []
+                    - Name: HP Image Assistant
+                      SpId: 136558
+                      Version: 5.1.4.31279
+                      Category: Software
+                      Devices: []
+                    - Name: Realtek Bluetooth Remote Wake Feature
+                      SpId: 119367
+                      Version: 1.0.0.4
+                      Category: Software
+                      Devices: []
+                    - Name: HP PC Hardware Diagnostics UEFI
+                      SpId: 115284
+                      Version: 8.2.0.0
+                      Category: Software
+                      Devices: []
+                    - Name: HP Notifications
+                      SpId: 113380
+                      Version: 1.1.28.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP Connection Optimizer
+                      SpId: 111995
+                      Version: 2.0.19.0
+                      Category: Software
+                      Devices: []
+                    - Name: Intel Bluetooth Remote Wake Feature Application
+                      SpId: 110501
+                      Version: 21.120.0.4
+                      Category: Software
+                      Devices: []
+                    - Name: HP Collaboration Keyboard
+                      SpId: 110344
+                      Version: 1.0.37.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP Hotkey Support
+                      SpId: 107620
+                      Version: 6.2.55.1
+                      Category: Software
+                      Devices: []
+                    - SpId: 95222
+                      Categories:
+                        - system
+                    - SpId: 134311
+                      Categories:
+                        - system
+                        - softwarecomponent
+                    - SpId: 132929
+                      Categories:
+                        - system
+                        - extension
+                        - display
+                        - usbfunctioncontroller
+                        - sdhost
+                        - scsiadapter
+                        - ports
+                    - SpId: 139823
+                      Categories:
+                        - system
+                    - SpId: 122453
+                      Categories:
+                        - extension
+                        - media
+                        - softwarecomponent
+                    - SpId: 133034
+                      Categories:
+                        - net
+                    - SpId: 135954
+                      Categories:
+                        - scsiadapter
+                        - hdc
+                    - SpId: 139844
+                      Categories:
+                        - system
+                        - ports
+                    - SpId: 111695
+                      Categories:
+                        - net
+                    - SpId: 138639
+                      Categories:
+                        - net
+                    - SpId: 111991
+                      Categories:
+                        - net
+                    - SpId: 107322
+                      Categories:
+                        - ports
+                    - SpId: 110216
+                      Categories:
+                        - biometric
+                    - SpId: 136892
+                      Categories:
+                        - bluetooth
+                    - SpId: 136485
+                      Categories:
+                        - bluetooth
+                  Recommended:
+                    - 110344
+                    - 110216
+                    - 87565
+                    - 138639
+                    - 135954
+                    - 140691
+                    - 139291
+                    - 140453
+                    - 110501
+                    - 134311
+                    - 136485
+                    - 133034
+                    - 139823
+                    - 138293
+                    - 107322
+                    - 136892
+                    - 132929
+                    - 139844
+                    - 119367
+                    - 140106
+                    - 111695
+                    - 115284
+                    - 122453
+                    - 94937
+                    - 140378
+                    - 113380
+                    - 107620
+                    - 136558
+                    - 92144
+                    - 95222
+                    - 111991
+                    - 111995
+                    - 139773
+                - Id: 85
+                  Name: HP ProBook 440 G8 Notebook PC
+                  Version: '3'
+                  DateCreated: '20211216'
+                  DateLastModified: '20220823'
+                  ProductName: HP ProBook 440 G8 Notebook PC
+                  SystemID: 8A86
+                  BiosVersion2: T70 Ver. 01.10.00
+                  BiosVersion: 0A.00
+                  BiosDate: |-
+                    07/14/2022
+                    T85_01100000.bin=ROM
+                  UserUILanguage: '1033'
+                  Os:
+                    Description: Microsoft Windows 10 Pro
+                    Version: 10.0.19041
+                    BuildNumber: '19041'
+                    Architecture: 64-bit
+                    EditionId: Professional
+                    ReleaseId: '2004'
+                  Softpaqs:
+                    - Name: Realtek USB Audio
+                      SpId: 136362
+                      Version: 6.3.9600.250
+                      Category: Software
+                      Devices: []
+                      Categories:
+                        - media
+                    - Name: HP MAC Address Manager
+                      SpId: 95997
+                      Version: 1.1.19.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP Cloud Recovery
+                      SpId: 139291
+                      Version: 2.9.5.37980
+                      Category: Software
+                      Devices: []
+                    - Name: HP MIK Client
+                      SpId: 139176
+                      Version: 5.0.0.38007
+                      Category: Software
+                      Devices: []
+                    - Name: HP Wireless Button Driver
+                      SpId: 136614
+                      Version: 2.1.16.30156
+                      Category: Software
+                      Devices: []
+                      Categories:
+                        - hidclass
+                        - softwarecomponent
+                    - Name: HP PC Hardware Diagnostics UEFI
+                      SpId: 136348
+                      Version: 8.4.1.0
+                      Category: Software
+                      Devices: []
+                    - Name: HP Notifications
+                      SpId: 136126
+                      Version: 1.1.28.1
+                      Category: Software
+                      Devices: []
+                    - Name: HP System Default Settings
+                      SpId: 135920
+                      Version: 1.4.16.5
+                      Category: Software
+                      Devices: []
+                    - Name: HP Smart Health
+                      SpId: 135860
+                      Version: 2.3.7.0
+                      Category: Software
+                      Devices: []
+                    - Name: HP Connection Optimizer
+                      SpId: 134527
+                      Version: 2.0.19.0
+                      Category: Software
+                      Devices: []
+                    - SpId: 139398
+                      Categories:
+                        - system
+                        - media
+                        - extension
+                        - display
+                        - cta driver devices
+                        - softwarecomponent
+                    - SpId: 141624
+                      Categories:
+                        - system
+                        - media
+                        - extension
+                        - softwarecomponent
+                    - SpId: 139275
+                      Categories:
+                        - system
+                        - keyboard
+                        - softwarecomponent
+                    - SpId: 136791
+                      Categories:
+                        - system
+                    - SpId: 136086
+                      Categories:
+                        - system
+                        - extension
+                        - display
+                        - usbfunctioncontroller
+                        - sdhost
+                        - scsiadapter
+                        - ports
+                    - SpId: 136077
+                      Categories:
+                        - hidclass
+                    - SpId: 135754
+                      Categories:
+                        - dptf
+                        - system
+                    - SpId: 135756
+                      Categories:
+                        - system
+                    - SpId: 140242
+                      Categories:
+                        - softwaredevice
+                        - media
+                        - mouse
+                        - display
+                        - usb
+                        - nvmoduletracker
+                        - system
+                    - SpId: 135945
+                      Categories:
+                        - extension
+                        - system
+                        - ports
+                        - sensor
+                    - SpId: 135902
+                      Categories:
+                        - extension
+                        - mtd
+                    - SpId: 136756
+                      Categories:
+                        - net
+                        - realmanage
+                        - extension
+                    - SpId: 135885
+                      Categories:
+                        - net
+                    - SpId: 139982
+                      Categories:
+                        - system
+                        - extension
+                        - ports
+                        - softwarecomponent
+                    - SpId: 110789
+                      Categories:
+                        - net
+                    - SpId: 141407
+                      Categories:
+                        - net
+                    - SpId: 136079
+                      Categories:
+                        - scsiadapter
+                        - softwarecomponent
+                    - SpId: 135673
+                      Categories:
+                        - net
+                    - SpId: 138474
+                      Categories:
+                        - net
+                        - extension
+                    - SpId: 139699
+                      Categories:
+                        - null
+                    - SpId: 140458
+                      Categories:
+                        - null
+                    - SpId: 96688
+                      Categories:
+                        - media
+                    - SpId: 136180
+                      Categories:
+                        - null
+                    - SpId: 139700
+                      Categories:
+                        - null
+                    - SpId: 135651
+                      Categories:
+                        - camera
+                        - usb
+                    - SpId: 138373
+                      Categories:
+                        - net
+                    - SpId: 136645
+                      Categories:
+                        - biometric
+                    - SpId: 136563
+                      Categories:
+                        - bluetooth
+                    - SpId: 136098
+                      Categories:
+                        - display
+                        - media
+                        - net
+                        - usb
+                    - SpId: 141213
+                      Categories:
+                        - bluetooth
+                  Recommended:
+                    - 138373
+                    - 139398
+                    - 135945
+                    - 139275
+                    - 136077
+                    - 136079
+                    - 136086
+                    - 139291
+                    - 136348
+                    - 141213
+                    - 136098
+                    - 136614
+                    - 139176
+                    - 136362
+                    - 140458
+                    - 96688
+                    - 139699
+                    - 135860
+                    - 136756
+                    - 139700
+                    - 141624
+                    - 136126
+                    - 110789
+                    - 136645
+                    - 135754
+                    - 135756
+                    - 135885
+                    - 139982
+                    - 140242
+                    - 136791
+                    - 135902
+                    - 141407
+                    - 135651
+                    - 138474
+                    - 135920
+                    - 136563
+                    - 136180
+                    - 135673
+                    - 95997
+                    - 134527
+        '422':
+          description: Validation Error
+  /references/{sys_id}:
+    get:
+      tags:
+        - reference images
+      summary: Get Refs By Sys Id
+      operationId: get_refs_by_sys_id_references__sys_id__get
+      parameters:
+        - required: true
+          schema:
+            title: Sys Id
+            type: integer
+          name: sys_id
+          in: path
+        - required: false
+          schema:
+            title: WDSSoftware Category
+            allOf:
+              - $ref: '#/components/schemas/WDSSoftwareCategory'
+          name: category
+          in: query
+        - description: Indicates the type of release (e.g. critical, routine, recommended)
+          required: false
+          schema:
+            title: Release Type
+            allOf:
+              - $ref: '#/components/schemas/ReleaseType'
+            description: Indicates the type of release (e.g. critical, routine, recommended)
+          name: release_type
+          in: query
+        - description: the operating system version
+          required: false
+          schema:
+            title: Operating system version
+            allOf:
+              - $ref: '#/components/schemas/OperatingSystemTypes'
+            description: the operating system version
+          name: os
+          in: query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /batch:
+    post:
+      tags:
+        - batch
+      summary: Batch
+      operationId: batch_batch_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+              example:
+                - id: '1'
+                  status: 200
+                  headers:
+                    location: /software/1
+                  body:
+                    software:
+                      spNumber: SP100921
+                      version: 1919.14.0.1269
+                      vendorVersion: 1919.14.0.1269
+                      vendorName: Intel
+                      type: Driver
+                      category: Driver - Chipset
+                      releaseType: Routine
+                      supersede: SP95852
+                      softPaqMD5: 58ac26d6fac07f630e16b76772c92a7b
+                      softPaqSha256: 26BA37073CD06698F5AD3AFF9CBF23F3FD046A41AE41E92FD4633AC52B1F798A
+                      softPaqBinarySize: '14706952'
+                      windowsUpdateId: ''
+                      rebootRequired: true
+                      isUwpApp: false
+                      isDpbCompliant: false
+                      driverType: NA
+                      detailFileInfo:
+                        - TEEDriverW8x64.sys=<WINSYSDIR>\DriverStore\FileRepository\heci.inf_amd64_84dfa9390100e6bc\x64\,0x077F,0x000E,0x0000,0x04F5,WT64_1909
+                      returnCodes:
+                        - 0:SUCCESS:NOREBOOT= The action completed successfully
+                        - 14:SUCCESS:REBOOT= A restart is required to complete the install
+                        - 3010:SUCCESS:NOREBOOT= The action completed successfully
+                      infPaths:
+                        - ''
+                      silentInstall: '"install.exe"'
+                      devices:
+                        - PCI\VEN_8086&DEV_9D3A&SUBSYS_8627103C="Intel(R) Management Engine Interface"
+                        - PCI\VEN_8086&DEV_9D3A&SUBSYS_8628103C="Intel(R) Management Engine Interface"
+                        - PCI\VEN_8086&DEV_9DE0&SUBSYS_8629103C="Intel(R) Management Engine Interface"
+                        - PCI\VEN_8086&DEV_9DE0&SUBSYS_862A103C="Intel(R) Management Engine Interface"
+                      isManageable: true
+                      displayStrings:
+                        - cvaLanguageCode: US
+                          title: Intel Management Engine Interface (MEI) Driver (Windows 10 v1909)
+                          description: This package provides the Intel Management Engine Interface (MEI) Driver for the supported notebook models and operating systems. The Intel Management Engine Interface enables communication between the host operating system and the Intel Management Engine firmware.
+                          enhancements:
+                            - '- Provides the updated driver.'
+                      products:
+                        - systemId: 8627,8628,8629,862A
+                          productName: HP 340 G5 Notebook PC
+                        - systemId: 8627,8628,8629,862A
+                          productName: HP 348 G5 Notebook PC
+                      oses:
+                        - name: Microsoft Windows 10 version 1909 (64-bit)
+                          version: 1032
+                          osId: 4283
+                          cvaOsCode: WT64_1909
+                      storePackageInfo:
+                        - ''
+                      supersededSpNumbers: []
+                      supersedingSpNumbers:
+                        - SP95852
+                      installInstructions: "1. Download the file by clicking the Download or Obtain Software button and saving the file to a folder on your hard drive (make a note of the folder where the downloaded file is saved).\r\n\r\n2. Double-click the downloaded file and follow the on-screen instructions."
+                - id: '2'
+                  status: 200
+                  headers:
+                    location: /software/2
+                  body:
+                    software:
+                      spNumber: SP73998
+                      version: 5.6.0
+                      vendorVersion: 5.6.0.17
+                      vendorName: Elo Touch
+                      type: Driver
+                      category: Software - PoS
+                      releaseType: Routine
+                      supersede: sp71663
+                      softPaqMD5: 21989484d9ef6047cb0cacf9b89d0b11
+                      softPaqSha256: 854066D7FE6B7DEBF68AE92E1FEEDE5D058726CBD7A32478B242D0E2A9B7049A
+                      softPaqBinarySize: '14813336'
+                      windowsUpdateId: ''
+                      rebootRequired: false
+                      isUwpApp: false
+                      isDpbCompliant: false
+                      driverType: NA
+                      detailFileInfo:
+                        - ''
+                      returnCodes:
+                        - ''
+                      infPaths:
+                        - ''
+                      silentInstall: N/A
+                      devices:
+                        - ''
+                      isManageable: false
+                      displayStrings:
+                        - cvaLanguageCode: US
+                          title: HP L5006tm / HP L5009tm / HP L5015tm Touch Screen Driver and Alignment Utility
+                          description: This package contains the Microsoft Windows USB Drivers and Touch Screen Alignment Utility for the HP POS Touch Screen used with supported desktop models that are running a supported operating system.
+                          enhancements:
+                            - '- Added model numbers to HP Touchscreen Setup options for clarity.'
+                      products:
+                        - systemId: '8245'
+                          productName: HP RP5 Retail System Model 5810(bPC)
+                        - systemId: '3030'
+                          productName: HP rp3000 Point of Sale(bPC)
+                        - systemId: ''
+                          productName: HP rp5700 (JB) Business Desktop(bPC)
+                        - systemId: 309B
+                          productName: HP rp5700 Business Desktop(bPC)
+                        - systemId: 30CD,30CE
+                          productName: HP rp5700 Point of Sale System(bPC)
+                        - systemId: ''
+                          productName: inch LCD Touchscreen Monitor
+                        - systemId: ''
+                          productName: HP L5006tm Touchscreen Monitor
+                        - systemId: ''
+                          productName: inch Retail Touch Monitor
+                        - systemId: ''
+                          productName: N/A(bPC)
+                        - systemId: ''
+                          productName: N/A(bPC)
+                        - systemId: ''
+                          productName: RP3, Model 3100(bPC)
+                        - systemId: ''
+                          productName: RP3, Model 3100(bPC)
+                        - systemId: 222C,222D
+                          productName: HP RP3 Retail System Model 3100(bPC)
+                        - systemId: 1847,1848
+                          productName: HP rp5800 Retail System(bPC)
+                        - systemId: '8476'
+                          productName: C Retail System
+                        - systemId: 840A
+                          productName: HP Engage Flex Pro Retail System
+                        - systemId: 087C
+                          productName: HP rp5000(bPC)
+                      oses:
+                        - name: Microsoft Windows 10 IOT Enterprise 64-Bit (x86)
+                          version: 0
+                          osId: 4195
+                          cvaOsCode: WTIOT64
+                        - name: Microsoft Windows 10 IOT Enterprise 32-Bit (x86)
+                          version: 0
+                          osId: 0
+                          cvaOsCode: NA
+                        - name: Microsoft Windows 10 64
+                          version: 0
+                          osId: 4192
+                          cvaOsCode: WT64
+                        - name: Microsoft Windows 10 32
+                          version: 0
+                          osId: 4191
+                          cvaOsCode: WT32
+                        - name: Microsoft Windows XP Professional
+                          version: 0
+                          osId: 1093
+                          cvaOsCode: WINXP32P
+                        - name: Microsoft Windows 8 Professional 64 Edition
+                          version: 0
+                          osId: 4136
+                          cvaOsCode: W864PR
+                        - name: Microsoft Windows 8 64 Edition
+                          version: 0
+                          osId: 4132
+                          cvaOsCode: W864
+                        - name: Microsoft Windows 8 Professional 32 Edition
+                          version: 0
+                          osId: 4135
+                          cvaOsCode: W832PR
+                        - name: Microsoft Windows 8 32 Edition
+                          version: 0
+                          osId: 4131
+                          cvaOsCode: W832
+                        - name: Microsoft Windows 8.1 64-bit Professional
+                          version: 0
+                          osId: 4158
+                          cvaOsCode: W8.164PR
+                        - name: Microsoft Windows 8.1 32-bit Professional
+                          version: 0
+                          osId: 4157
+                          cvaOsCode: W8.132PR
+                        - name: Microsoft Windows 7 Professional 64 Edition
+                          version: 0
+                          osId: 4059
+                          cvaOsCode: W764PR
+                        - name: Microsoft Windows 7 64-bit
+                          version: 0
+                          osId: 4063
+                          cvaOsCode: W764
+                        - name: Microsoft Windows 7 Professional 32 Edition
+                          version: 0
+                          osId: 4053
+                          cvaOsCode: W732PR
+                        - name: Microsoft Windows 7 32-bit
+                          version: 0
+                          osId: 4062
+                          cvaOsCode: W732
+                        - name: 'Microsoft Windows Embedded POSReady 7 64-Bit '
+                          version: 0
+                          osId: 4127
+                          cvaOsCode: POSREADY764
+                        - name: 'Microsoft Windows Embedded POSReady 7 32-Bit '
+                          version: 0
+                          osId: 4126
+                          cvaOsCode: POSREADY732
+                        - name: Microsoft Windows Embedded POSReady
+                          version: 0
+                          osId: 4047
+                          cvaOsCode: POSREADY
+                      storePackageInfo:
+                        - ''
+                      supersededSpNumbers: []
+                      supersedingSpNumbers:
+                        - sp71663
+                      installInstructions: "1. Download the file by clicking the \"Download\" or \"Obtain Software\" button and saving the file to a folder on your hard drive (make a note of the folder where the downloaded file is saved).\r\n\r\n2. Double-click the downloaded file and follow the on-screen instructions.\r\n\r\nNOTE: For detailed installation instructions, see the \"HP L5006tm, L5009tm, L5015tm TouchScreen Readme.pdf\" file."
+        '422':
+          description: Validation Error
+components:
+  schemas:
+    BatchRequest:
+      title: BatchRequest
+      required:
+        - id
+        - method
+      type: object
+      properties:
+        id:
+          title: Id
+          type: string
+        method:
+          title: Method
+          type: string
+        url:
+          title: Url
+          type: string
+        headers:
+          $ref: '#/components/schemas/RequestHeaders'
+    DisplayString:
+      title: DisplayString
+      required:
+        - title
+        - description
+        - enhancements
+      type: object
+      properties:
+        pk:
+          title: Pk
+          type: string
+        language:
+          title: Language
+          maxLength: 2
+          type: string
+          default: en
+        title:
+          title: Title
+          type: string
+          description: Title of the softpaq
+        description:
+          title: Description
+          type: string
+          description: Description of functionality
+        enhancements:
+          title: Enhancements
+          type: array
+          items:
+            type: string
+          description: A list of enhancements provided by the softpaq
+      description: 'The language-specific display string for the product. '
+    DriverType:
+      title: DriverType
+      enum:
+        - Universal
+        - Legacy
+      description: |-
+        This field indicates whether the driver is a *legacy driver* or a *universal driver*
+
+        - **Universal**: Windows 10 1709 or later
+        - **Legacy**: Windows versions prior to Windows 10 1709
+
+        Check the CVA Specification for more details *Section 6.18.5*
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    Links:
+      title: Links
+      required:
+        - referenceImage
+        - media
+        - software
+        - bulletins
+      type: object
+      properties:
+        referenceImage:
+          title: Referenceimage
+          type: string
+          description: Reference image for a given product
+        media:
+          title: Media
+          type: string
+          description: Marketing media associated with a given product
+        software:
+          title: Software
+          type: string
+          description: Software associated with a given product
+        bulletins:
+          title: Bulletins
+          type: string
+          description: Bulletins associated with a given product
+      description: |-
+        Hypermedia links.
+
+        Allows the client to dynamically navigate to the appropriate resources by traversing the hypermedia links.
+
+        **note**: We should use absolute urls to make it easier to navigate from the browser.
+    Locale:
+      title: Locale
+      type: object
+      properties:
+        pk:
+          title: Pk
+          type: string
+        language:
+          title: Language
+          maxLength: 2
+          type: string
+          default: en
+        country:
+          title: Country
+          maxLength: 3
+          type: string
+          default: US
+      description: |-
+        Localization model used in translations
+
+        See the CVA specification for more details:
+
+        - *Appendix A-2* Language Codes
+        - *Appendix C-3* Country Codes
+
+        **Note**: Consider using the ISO 639-1 language code.
+    OperatingSystemTypes:
+      title: OperatingSystemTypes
+      enum:
+        - Microsoft Windows 10 version 1809 (64-bit)
+        - Microsoft Windows 10 version 1909 (64-bit)
+        - Microsoft Windows 10 version 2004 (64-bit)
+        - Microsoft Windows 10 version 20H2 (64-bit)
+      description: |-
+        Operating system types
+
+        The types here correspond to the os versions supported by the CVA specification.
+
+        **TODO: check for uniqueness of the 'osId' field as a possible replacement**
+
+        For a full list of operating systems, see the CVA Specification, *section 6.9.1*
+    Os:
+      title: Os
+      required:
+        - name
+        - version
+        - osId
+        - cvaOsCode
+      type: object
+      properties:
+        pk:
+          title: Pk
+          type: string
+        name:
+          title: Name
+          type: string
+          description: OS name
+        version:
+          title: Version
+          type: integer
+          description: OS version number
+        osId:
+          title: Osid
+          type: integer
+          description: unique OS id
+        cvaOsCode:
+          title: Cvaoscode
+          type: string
+          description: OS code used by CVA files
+        Description:
+          title: Description
+          type: string
+          description: OS description
+        architecture:
+          title: Architecture
+          type: string
+          description: OS architecture
+        editionId:
+          title: Editionid
+          type: string
+          description: OS edition id
+        releaseId:
+          title: Releaseid
+          type: string
+          description: OS release id
+        servicePack:
+          title: Servicepack
+          type: string
+          description: OS service pack
+      description: |-
+        The supported operating systems for the product
+
+        **note**: We can optionally add additional fields to this model to include things like:
+        - version
+        - architecture
+        - edition
+        - etc.
+
+        Check the CVA Specification for more details **Section 6.9**
+    Page_WDSSoftware_:
+      title: Page[WDSSoftware]
+      required:
+        - items
+        - total
+        - page
+        - size
+      type: object
+      properties:
+        items:
+          title: Items
+          type: array
+          items:
+            $ref: '#/components/schemas/WDSSoftware'
+        total:
+          title: Total
+          minimum: 0
+          type: integer
+        page:
+          title: Page
+          minimum: 1
+          type: integer
+        size:
+          title: Size
+          minimum: 1
+          type: integer
+    Product:
+      title: Product
+      required:
+        - productId
+        - systemId
+        - productName
+        - operatingSystems
+        - Locales
+        - driverPackBuildSupported
+        - links
+      type: object
+      properties:
+        productId:
+          title: Productid
+          type: integer
+          description: Product id
+        systemId:
+          title: Systemid
+          type: string
+          description: system id
+        systemFamily:
+          title: Systemfamily
+          type: string
+          description: System family
+        productName:
+          title: Productname
+          type: string
+          description: Product name
+        description:
+          title: Description
+          type: string
+          description: Product description
+        enhancements:
+          title: Enhancements
+          type: array
+          items:
+            type: string
+          description: Product enhancements
+        operatingSystems:
+          title: Operatingsystems
+          type: array
+          items:
+            $ref: '#/components/schemas/Os'
+        Locales:
+          title: Locales
+          type: array
+          items:
+            $ref: '#/components/schemas/Locale'
+        driverPackBuildSupported:
+          title: Driverpackbuildsupported
+          type: boolean
+        links:
+          $ref: '#/components/schemas/Links'
+    ReferenceImage:
+      title: ReferenceImage
+      type: object
+      properties:
+        Id:
+          title: Id
+          type: integer
+        Name:
+          title: Name
+          type: string
+        Version:
+          title: Version
+          type: string
+        DateCreated:
+          title: Datecreated
+          type: string
+        DateLastModified:
+          title: Datelastmodified
+          type: string
+        ProductName:
+          title: Productname
+          type: string
+        SystemID:
+          title: Systemid
+          type: string
+        SystemFamily:
+          title: Systemfamily
+          type: string
+        BiosVersion2:
+          title: Biosversion2
+          type: string
+        BiosVersion:
+          title: Biosversion
+          type: string
+        BiosDate:
+          title: Biosdate
+          type: string
+        UserUILanguage:
+          title: Useruilanguage
+          type: string
+        Os:
+          $ref: '#/components/schemas/Os'
+        Softpaqs:
+          title: Softpaqs
+          type: array
+          items:
+            type: string
+        Recommended:
+          title: Recommended
+          type: array
+          items:
+            type: integer
+    ReleaseType:
+      title: ReleaseType
+      enum:
+        - Optional
+        - Routine
+        - Recommended
+        - Required
+        - Critical
+      description: |-
+        Release type of the softpaq
+
+        Check the CVA Specification for more details **Section 3.3**
+    RequestHeaders:
+      title: RequestHeaders
+      type: object
+      properties:
+        Content-Type:
+          title: Content-Type
+          type: string
+        ConsistencyLevel:
+          title: Consistencylevel
+          type: string
+    ValidationError:
+      title: ValidationError
+      required:
+        - loc
+        - msg
+        - type
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+    WDSSoftware:
+      title: WDSSoftware
+      required:
+        - id
+      type: object
+      properties:
+        pk:
+          title: Pk
+          type: string
+        id:
+          title: Id
+          type: integer
+          description: WDSSoftware number
+        name:
+          title: Name
+          type: string
+        spNumber:
+          title: Spnumber
+          type: string
+          description: WDSSoftware number with 'SP' prefix
+        version:
+          title: Version
+          type: string
+          description: WDSSoftware version
+        vendorVersion:
+          title: Vendorversion
+          type: string
+          description: WDSSoftware vendor version
+        vendorName:
+          title: Vendorname
+          type: string
+          description: WDSSoftware vendor name
+        type:
+          allOf:
+            - $ref: '#/components/schemas/WDSSoftwareType'
+          description: Indicates if the softpaq is software or driver
+        category:
+          allOf:
+            - $ref: '#/components/schemas/WDSSoftwareCategory'
+          description: WDSSoftware category
+        releaseType:
+          allOf:
+            - $ref: '#/components/schemas/ReleaseType'
+          description: WDSSoftware release type
+        supersede:
+          title: Supersede
+          type: string
+          description: The id of the softpaq that this softpaq supersedes
+        softPaqSha256:
+          title: Softpaqsha256
+          type: string
+          description: 256-bit cryptographic hash algorithm for the SoftPaq.exe
+        softPaqBinarySize:
+          title: Softpaqbinarysize
+          type: string
+          description: Size of the SoftPaq.exe in bytes
+        windowsUpdateId:
+          title: Windowsupdateid
+          type: string
+          description: Windows Update ID
+        rebootRequired:
+          title: Rebootrequired
+          type: boolean
+          description: Indicates if a reboot is required after SoftPaq ¬installation
+        isUwpApp:
+          title: Isuwpapp
+          type: boolean
+          description: Indicates if the SoftPaq is a UWP app
+        isDpbCompliant:
+          title: Isdpbcompliant
+          type: boolean
+          description: indicator of whether or not the SoftPaq is compatible with Driver Pack Builder tool
+        driverType:
+          allOf:
+            - $ref: '#/components/schemas/DriverType'
+          description: Universal indicates the operating system is Windows 10 1709 or later
+          default: Universal
+        detailFileInfo:
+          title: Detailfileinfo
+          type: array
+          items:
+            type: string
+          description: List of file details for the SoftPaq
+        returnCodes:
+          title: Returncodes
+          type: array
+          items:
+            type: string
+          description: 'The result of a command-line installation of the WDSSoftware and whether a reboot is required. '
+        infPaths:
+          title: Infpaths
+          type: array
+          items:
+            type: string
+          description: List of INF paths for the SoftPaq
+        silentInstall:
+          title: Silentinstall
+          type: string
+          description: relitive path of install executable and command line arguments required to install the SoftPaq without user interaction
+        devices:
+          title: Devices
+          type: array
+          items:
+            type: string
+          description: List of device ids that the SoftPaq is compatible with
+        isManageable:
+          title: Ismanageable
+          type: boolean
+          description: Indicates if the SoftPaq is manageable
+        displayStrings:
+          title: Displaystrings
+          allOf:
+            - $ref: '#/components/schemas/DisplayString'
+          description: Display strings, including localized titles and descriptions
+        products:
+          title: Products
+          type: array
+          items:
+            type: string
+          description: List of products that the SoftPaq is compatible with
+        oses:
+          title: Oses
+          type: array
+          items:
+            type: string
+          description: List of operating systems that the SoftPaq is compatible with
+        storePackageInfo:
+          title: Storepackageinfo
+          type: array
+          items:
+            type: string
+          description: List of store package info for the SoftPaq
+        supersededSpNumbers:
+          title: Supersededspnumbers
+          type: array
+          items:
+            type: string
+          description: List of WDSSoftwares replaced by this WDSSoftware
+        supersedingSpNumbers:
+          title: Supersedingspnumbers
+          type: array
+          items:
+            type: string
+          description: List of WDSSoftwares that have replaced this WDSSoftware
+        installInstructions:
+          title: Installinstructions
+          type: string
+          description: Install instructions for the SoftPaq
+      description: |-
+        Metadata for WDSSoftwares
+
+        This is a superset of the information found in the WDSSoftware CVA file.
+    WDSSoftwareCategory:
+      title: WDSSoftwareCategory
+      enum:
+        - BIOS
+        - Diagnostic
+        - Dock
+        - Driver
+        - Driverpack
+        - Firmware
+        - Manageability
+        - OS
+        - Software
+        - Utility
+        - UWPPack
+      description: |-
+        The WDSSoftware category of the product
+
+        **Note**: The WDSSoftware category is a subset of the WDSSoftware category full.
+
+        The full list includes:
+
+        - BIOS
+        - Diagnostic
+        - Driver – Audio
+        - Driver – Chipset
+        - Driver – Display
+        - Driver – Diver Pack
+        - Driver – Graphics
+        - Driver – Keyboard, Mouse and Input Devices
+        - Driver – Modem
+        - Driver – Network
+        - Driver – Printer
+        - Driver – Scanner
+        - Driver – Storage
+        - Firmware
+        - Manageability – Driver Pack
+        - Manageability – Tools
+        - Operating System – Enhancements and QFEs
+        - Software – Internet Access
+        - Software – Multimedia
+        - Software – PoS – MSR
+        - Software – PoS – Scanner
+        - Software – Security
+        - Software – Smart Jackets
+        - Software – Solutions
+        - Software – System Management
+        - Utility – Tools
+
+        Check the CVA Specification for more details *Section 6.4.1*
+    WDSSoftwareType:
+      title: WDSSoftwareType
+      enum:
+        - Software
+        - Driver
+      description: 'Indicates if the softpaq is software or driver '
